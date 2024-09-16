@@ -1,22 +1,47 @@
-// Seleccionamos el formulario y la lista de pedidos
 const form = document.getElementById('pedido-form');
 const listaPedidos = document.getElementById('lista-pedidos');
 
-// Añadimos un evento para escuchar cuando el formulario se envíe
+document.addEventListener('DOMContentLoaded', loadPedidos);
 form.addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevenimos que la página se recargue
-
-    // Obtenemos los valores del formulario
+    event.preventDefault();
+    
     const Mesa = document.getElementById('Mesa').value;
     const pedido = document.getElementById('pedido').value;
 
-    // Creamos un nuevo elemento de lista (li) para mostrar el pedido
     const pedidoItem = document.createElement('li');
-    pedidoItem.innerHTML = `<strong>Mesa:</strong> ${Mesa} <br> <strong>Pedido:</strong> ${pedido}`;
+    pedidoItem.innerHTML = `<strong>Mesa:</strong> ${Mesa} <br> <strong>Pedido:</strong> ${pedido} 
+                            <button onclick="eliminarPedido(this)">Eliminar</button>`;
     
-    // Añadimos el pedido a la lista
     listaPedidos.appendChild(pedidoItem);
+
+    guardarPedido(Mesa, pedido);
     
-    // Limpiamos el formulario
     form.reset();
 });
+
+function guardarPedido(Mesa, pedido) {
+    const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    pedidos.push({Mesa, pedido});
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
+}
+
+function loadPedidos() {
+    const pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+    pedidos.forEach(pedido => {
+        const pedidoItem = document.createElement('li');
+        pedidoItem.innerHTML = `<strong>Mesa:</strong> ${pedido.Mesa} <br> <strong>Pedido:</strong> ${pedido.pedido} 
+                                <button onclick="eliminarPedido(this)">Eliminar</button>`;
+        listaPedidos.appendChild(pedidoItem);
+    });
+}
+
+function eliminarPedido(button) {
+    const pedidoItem = button.parentElement;
+    const Mesa = pedidoItem.querySelector('strong').textContent.split(': ')[1];
+    
+    let pedidos = JSON.parse(localStorage.getItem('pedidos'));
+    pedidos = pedidos.filter(pedido => pedido.Mesa !== Mesa);
+    localStorage.setItem('pedidos', JSON.stringify(pedidos));
+    
+    pedidoItem.remove();
+}
