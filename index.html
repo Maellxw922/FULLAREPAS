@@ -4,35 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FULL AREPAS MONTERIA</title>
-    <!-- Enlace al archivo CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Gestión de Pedidos</h1>
 
-    <!-- Formulario para ingresar los pedidos -->
     <div id="order-form">
         <h2>Ingresar Pedido</h2>
         <form id="pedido-form">
             <label for="Mesero">Nombre del mesero</label>
-            <input type="text" id="Mesero">
-            <label for="Mesa">Numero de la mesa:</label>
+            <input type="text" id="Mesero" required>
+            
+            <label for="Mesa">Número de la mesa:</label>
             <input type="number" id="Mesa" required>
-            <label for="pedido">Pedido:</label>
-            <textarea id="pedido" required></textarea>
-            <button type="submit">Añadir Pedido</button>
+            
+            <label for="arepa">Selecciona una Arepa:</label>
+            <select id="arepa">
+                <option value="pollo">Arepa de Pollo - $3.00</option>
+                <option value="carne">Arepa de Carne - $3.50</option>
+                <option value="queso">Arepa de Queso - $2.50</option>
+            </select>
+            
+            <label for="cantidadArepa">Cantidad de Arepas:</label>
+            <input type="number" id="cantidadArepa" min="1" value="1">
+
+            <button type="button" onclick="agregarPedido('arepa')">Añadir Arepa</button>
+
+            <label for="gaseosa">Selecciona una Gaseosa:</label>
+            <select id="gaseosa">
+                <option value="coca-cola">Coca-Cola - $1.00</option>
+                <option value="sprite">Sprite - $1.00</option>
+                <option value="fanta">Fanta - $1.00</option>
+            </select>
+
+            <label for="cantidadGaseosa">Cantidad de Gaseosas:</label>
+            <input type="number" id="cantidadGaseosa" min="1" value="1">
+
+            <button type="button" onclick="agregarPedido('gaseosa')">Añadir Gaseosa</button>
+
+            <h3>Precio Total: <span id="precioTotal">$0.00</span></h3>
+
+            <button type="submit">Finalizar Pedido</button>
         </form>
     </div>
 
-    <!-- Sección para mostrar la lista de pedidos -->
     <div id="order-list">
         <h2>Lista de Pedidos</h2>
-        <ul id="lista-pedidos">
-            <!-- Aquí se mostrarán los pedidos -->
-        </ul>
+        <ul id="lista-pedidos"></ul>
     </div>
 
-    <!-- Enlace al archivo JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
