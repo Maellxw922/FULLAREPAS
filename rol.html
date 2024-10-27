@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elige tu Rol</title>
+    <script src="rol.js"></script>
+    <style>
+        
+        .container {
+            text-align: center;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mesero-cocinero {
+            padding: 20px;
+            text-align: center;
+            
+        }
+        
+        .mesero, .cocinero {
+            background-color: orange;
+            color: black;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin:10px;
+        }
+        
+        div h1 {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Elige tu rol</h1>
+        <div class="mesero-cocinero">
+            <button class="mesero" id="pagm"  onclick="PaginaMesero()">Mesero</button>
+            <button class="cocinero" id="pagc" onclick="PaginaCocinero()">Cocinero</button>
+        </div>
+    </div>
+</body>
+</html>
