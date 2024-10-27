@@ -1,10 +1,21 @@
 const precios = {
-    "pollo": 3.00,
-    "carne": 3.50,
-    "queso": 2.50,
-    "coca-cola": 1.00,
-    "sprite": 1.00,
-    "fanta": 1.00
+    "pollo": 8000,
+    "carne": 8000,
+    "queso": 4000,
+    "coca-cola": 2500,
+    "chicha": 2000,
+    "uva": 2500,
+    "colombiana": 2500,
+    "naranja": 2500,
+    "pepsi": 2500,
+    "manzana": 2500,
+    "chorizo": 8000,
+    "suizo": 8000,
+    "chicharron": 8000,
+    "hamburguesa": 8000,
+    "jamon": 5000,
+    "hawaiana": 7000,
+    "queso_mozarella": 5000,
 };
 
 let precioTotal = 0;
@@ -38,37 +49,44 @@ function finalizarPedido(event) {
     event.preventDefault();
 
     const listaPedidos = document.getElementById("lista-pedidos");
-    listaPedidos.innerHTML = ""; // Limpiar la lista antes de añadir los pedidos
 
     // Capturar el nombre del mesero y número de la mesa
     const mesero = document.getElementById("Mesero").value;
     const mesa = document.getElementById("Mesa").value;
 
+    // Crear un contenedor para el nuevo pedido
+    const pedidoContainer = document.createElement("div");
+    pedidoContainer.style.border = "1px solid #ccc";
+    pedidoContainer.style.margin = "10px 0";
+    pedidoContainer.style.padding = "10px";
+
     // Añadir encabezado con mesero y mesa
-    const encabezadoItem = document.createElement("li");
+    const encabezadoItem = document.createElement("h4");
     encabezadoItem.innerText = `Mesero: ${mesero} | Mesa: ${mesa}`;
-    encabezadoItem.style.fontWeight = "bold";
-    listaPedidos.appendChild(encabezadoItem);
+    pedidoContainer.appendChild(encabezadoItem);
 
     // Mostrar cada pedido en la lista de pedidos
-    pedidos.forEach(pedido => {
-        const listItem = document.createElement("li");
+    pedidos.forEach((pedido) => {
+        const listItem = document.createElement("p");
         listItem.innerText = `${pedido.cantidad} x ${pedido.producto} - Subtotal: $${pedido.subtotal.toFixed(2)}`;
-        listaPedidos.appendChild(listItem);
+        pedidoContainer.appendChild(listItem);
     });
 
     // Mostrar el total final
-    const totalItem = document.createElement("li");
+    const totalItem = document.createElement("p");
     totalItem.innerText = `Total: $${precioTotal.toFixed(2)}`;
     totalItem.style.fontWeight = "bold";
-    listaPedidos.appendChild(totalItem);
+    pedidoContainer.appendChild(totalItem);
+
+    // Añadir el contenedor del pedido a la lista de pedidos
+    listaPedidos.appendChild(pedidoContainer);
 
     // Reiniciar para el siguiente pedido
     pedidos = [];
     precioTotal = 0;
     document.getElementById("precioTotal").innerText = "$0.00";
 
-    // Opcional: limpiar el formulario para el próximo pedido
+    // Limpiar el formulario para el próximo pedido
     document.getElementById("pedido-form").reset();
 }
 
