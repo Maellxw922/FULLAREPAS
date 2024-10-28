@@ -35,6 +35,14 @@
             border-radius: 5px;
             margin-top: 10px;
         }
+        .btn-estado {
+            padding: 5px 10px;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -43,12 +51,7 @@
 
     <script>
         // Obtener los pedidos almacenados en localStorage
-        let pedidos = JSON.parse(localStorage.getItem('pedidos'));
-
-        // Si pedidos es null o undefined, inicializar como un array vacío
-        if (!pedidos) {
-            pedidos = [];
-        }
+        let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
 
         // Mostrar los pedidos en la lista
         const listaPedidos = document.getElementById("lista-pedidos");
@@ -76,6 +79,14 @@
                 totalItem.style.fontWeight = "bold";
                 pedidoContainer.appendChild(totalItem);
 
+                // Mostrar el estado del pedido
+                const estadoBtn = document.createElement("button");
+                estadoBtn.innerText = pedido.estado || "En Espera"; // Por defecto "En Espera"
+                estadoBtn.className = "btn-estado";
+                estadoBtn.style.backgroundColor = pedido.estado === "Preparado" ? "green" : "red";
+                estadoBtn.onclick = () => cambiarEstado(index);
+                pedidoContainer.appendChild(estadoBtn);
+
                 // Botón de eliminar
                 const btnEliminar = document.createElement("button");
                 btnEliminar.innerText = "Eliminar Pedido";
@@ -95,9 +106,16 @@
             }
         }
 
+        // Función para cambiar el estado del pedido
+        function cambiarEstado(index) {
+            const estadoActual = pedidos[index].estado || "En Espera";
+            pedidos[index].estado = estadoActual === "Preparado" ? "En Espera" : "Preparado";
+            localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Actualizar localStorage
+            mostrarPedidos(); // Volver a mostrar la lista actualizada
+        }
+
         // Función para eliminar un pedido
         function eliminarPedido(index) {
-            // Confirmar eliminación
             if (confirm("¿Estás seguro de que deseas eliminar este pedido?")) {
                 pedidos.splice(index, 1); // Eliminar el pedido de la lista
                 localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Actualizar localStorage
