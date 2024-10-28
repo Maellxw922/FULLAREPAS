@@ -1,12 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos</title>
+    <title>Lista de Pedidos - Cocinero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #lista-pedidos {
+            margin-top: 20px;
+        }
+        .pedido-container {
+            border: 1px solid #ccc;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .pedido-container h4 {
+            margin: 0;
+        }
+        .btn-eliminar {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>PAGINA DE COCINERO 😁</h1>
-    
+    <h1>Lista de Pedidos</h1>
+    <div id="lista-pedidos"></div>
+
+    <script>
+        // Obtener los pedidos almacenados en localStorage
+        let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+
+        // Mostrar los pedidos en la lista
+        const listaPedidos = document.getElementById("lista-pedidos");
+        function mostrarPedidos() {
+            listaPedidos.innerHTML = ''; // Limpiar la lista antes de mostrar
+
+            pedidos.forEach((pedido, index) => {
+                const pedidoContainer = document.createElement("div");
+                pedidoContainer.className = "pedido-container";
+
+                const encabezadoItem = document.createElement("h4");
+                encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
+                pedidoContainer.appendChild(encabezadoItem);
+
+                // Mostrar cada pedido en la lista de pedidos
+                pedido.pedidos.forEach((item) => {
+                    const listItem = document.createElement("p");
+                    listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
+                    pedidoContainer.appendChild(listItem);
+                });
+
+                // Mostrar el total final
+                const totalItem = document.createElement("p");
+                totalItem.innerText = `Total: $${pedido.total.toFixed(2)}`;
+                totalItem.style.fontWeight = "bold";
+                pedidoContainer.appendChild(totalItem);
+
+                // Botón de eliminar
+                const btnEliminar = document.createElement("button");
+                btnEliminar.innerText = "Eliminar Pedido";
+                btnEliminar.className = "btn-eliminar";
+                btnEliminar.onclick = () => eliminarPedido(index);
+                pedidoContainer.appendChild(btnEliminar);
+
+                // Añadir el contenedor del pedido a la lista de pedidos
+                listaPedidos.appendChild(pedidoContainer);
+            });
+
+            // Mensaje si no hay pedidos
+            if (pedidos.length === 0) {
+                const noPedidos = document.createElement("p");
+                noPedidos.innerText = "No hay pedidos recientes.";
+                listaPedidos.appendChild(noPedidos);
+            }
+        }
+
+        // Función para eliminar un pedido
+        function eliminarPedido(index) {
+            // Confirmar eliminación
+            if (confirm("¿Estás seguro de que deseas eliminar este pedido?")) {
+                pedidos.splice(index, 1); // Eliminar el pedido de la lista
+                localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Actualizar localStorage
+                mostrarPedidos(); // Volver a mostrar la lista actualizada
+            }
+        }
+
+        // Mostrar los pedidos al cargar la página
+        mostrarPedidos();
+    </script>
 </body>
 </html>
