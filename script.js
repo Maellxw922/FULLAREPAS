@@ -15,7 +15,7 @@ const precios = {
     "hamburguesa": 8000,
     "jamon": 5000,
     "hawaiana": 7000,
-    "queso mozarella": 5000,
+    "queso_mozarella": 5000,
 };
 
 let precioTotal = 0;
