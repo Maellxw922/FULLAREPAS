@@ -11,7 +11,7 @@
 
     <div id="order-form">
         <h2>Ingresar Pedido</h2>
-        <form id="pedido-form">
+        <form id="pedido-form" onsubmit="finalizarPedido(event)">
             <label for="Mesero">Nombre del mesero</label>
             <input type="text" id="Mesero" required>
             
@@ -66,6 +66,67 @@
         <ul id="lista-pedidos"></ul>
     </div>
 
-    <script src="script.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+            authDomain: "fullarepas-29b8d.firebaseapp.com",
+            projectId: "fullarepas-29b8d",
+            storageBucket: "fullarepas-29b8d.appspot.com",
+            messagingSenderId: "771877374150",
+            appId: "1:771877374150:web:1600cf14fe025344636fc7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const pedidosRef = ref(db, 'pedidos');
+
+        let pedidos = [];
+
+        function agregarPedido(tipo) {
+            const cantidad = document.getElementById(`cantidad${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).value;
+            const producto = document.getElementById(tipo).value;
+            const precio = tipo === 'arepa' ? 8000 : 2500; // Cambia los precios según el tipo
+            const subtotal = cantidad * precio;
+
+            pedidos.push({ cantidad: parseInt(cantidad), producto, subtotal });
+
+            actualizarPrecioTotal();
+        }
+
+        function actualizarPrecioTotal() {
+            const total = pedidos.reduce((acc, pedido) => acc + pedido.subtotal, 0);
+            document.getElementById('precioTotal').innerText = `$${total.toFixed(2)}`;
+        }
+
+        function finalizarPedido(event) {
+            event.preventDefault();
+
+            const mesero = document.getElementById('Mesero').value;
+            const mesa = document.getElementById('Mesa').value;
+            const total = pedidos.reduce((acc, pedido) => acc + pedido.subtotal, 0);
+            const estado = "En Espera";
+
+            const nuevoPedido = { mesero, mesa, pedidos, total, estado };
+
+            const newPedidoRef = ref(db, `pedidos/${new Date().getTime()}`);
+            set(newPedidoRef, nuevoPedido)
+                .then(() => {
+                    alert('Pedido registrado exitosamente!');
+                    resetFormulario();
+                })
+                .catch((error) => {
+                    console.error("Error al registrar el pedido:", error);
+                });
+        }
+
+        function resetFormulario() {
+            document.getElementById('pedido-form').reset();
+            pedidos = [];
+            document.getElementById('precioTotal').innerText = "$0.00";
+        }
+    </script>
 </body>
 </html>
