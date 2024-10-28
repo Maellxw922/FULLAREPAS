@@ -81,6 +81,9 @@ function finalizarPedido(event) {
     // Añadir el contenedor del pedido a la lista de pedidos
     listaPedidos.appendChild(pedidoContainer);
 
+    // Almacenar el pedido en localStorage
+    almacenarPedidosEnLocalStorage({ mesero, mesa, pedidos, total: precioTotal });
+
     // Reiniciar para el siguiente pedido
     pedidos = [];
     precioTotal = 0;
@@ -88,6 +91,13 @@ function finalizarPedido(event) {
 
     // Limpiar el formulario para el próximo pedido
     document.getElementById("pedido-form").reset();
+}
+
+// Función para almacenar pedidos en localStorage
+function almacenarPedidosEnLocalStorage(nuevoPedido) {
+    let pedidosAlmacenados = JSON.parse(localStorage.getItem('pedidos')) || [];
+    pedidosAlmacenados.push(nuevoPedido);
+    localStorage.setItem('pedidos', JSON.stringify(pedidosAlmacenados));
 }
 
 // Vincular el botón "Finalizar Pedido" al evento submit del formulario
