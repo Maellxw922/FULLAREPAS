@@ -1,3 +1,17 @@
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+    authDomain: "fullarepas-29b8d.firebaseapp.com",
+    projectId: "fullarepas-29b8d",
+    storageBucket: "fullarepas-29b8d.appspot.com",
+    messagingSenderId: "771877374150",
+    appId: "1:771877374150:web:1600cf14fe025344636fc7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 const precios = {
     "pollo": 8000,
     "carne": 8000,
@@ -19,7 +33,7 @@ const precios = {
 };
 
 let precioTotal = 0;
-let pedidos = []; // Lista para almacenar cada pedido
+let pedidos = [];
 
 // Función para agregar un pedido de arepa o gaseosa
 function agregarPedido(tipo) {
@@ -44,7 +58,7 @@ function agregarPedido(tipo) {
     document.getElementById("precioTotal").innerText = `$${precioTotal.toFixed(2)}`;
 }
 
-// Función para finalizar el pedido y mostrar la lista completa
+// Función para finalizar el pedido y almacenar en Firebase
 function finalizarPedido(event) {
     event.preventDefault();
 
@@ -54,50 +68,56 @@ function finalizarPedido(event) {
     const mesero = document.getElementById("Mesero").value;
     const mesa = document.getElementById("Mesa").value;
 
-    // Crear un contenedor para el nuevo pedido
-    const pedidoContainer = document.createElement("div");
-    pedidoContainer.style.border = "1px solid #ccc";
-    pedidoContainer.style.margin = "10px 0";
-    pedidoContainer.style.padding = "10px";
+    // Crear un nuevo pedido
+    const nuevoPedido = {
+        mesero,
+        mesa,
+        pedidos,
+        total: precioTotal,
+    };
 
-    // Añadir encabezado con mesero y mesa
-    const encabezadoItem = document.createElement("h4");
-    encabezadoItem.innerText = `Mesero: ${mesero} | Mesa: ${mesa}`;
-    pedidoContainer.appendChild(encabezadoItem);
+    // Almacenar el pedido en Firebase
+    const newOrderRef = ref(database, 'pedidos/' + Date.now()); // Usa un timestamp como ID
+    set(newOrderRef, nuevoPedido)
+        .then(() => {
+            // Crear un contenedor para el nuevo pedido
+            const pedidoContainer = document.createElement("div");
+            pedidoContainer.style.border = "1px solid #ccc";
+            pedidoContainer.style.margin = "10px 0";
+            pedidoContainer.style.padding = "10px";
 
-    // Mostrar cada pedido en la lista de pedidos
-    pedidos.forEach((pedido) => {
-        const listItem = document.createElement("p");
-        listItem.innerText = `${pedido.cantidad} x ${pedido.producto} - Subtotal: $${pedido.subtotal.toFixed(2)}`;
-        pedidoContainer.appendChild(listItem);
-    });
+            // Añadir encabezado con mesero y mesa
+            const encabezadoItem = document.createElement("h4");
+            encabezadoItem.innerText = `Mesero: ${mesero} | Mesa: ${mesa}`;
+            pedidoContainer.appendChild(encabezadoItem);
 
-    // Mostrar el total final
-    const totalItem = document.createElement("p");
-    totalItem.innerText = `Total: $${precioTotal.toFixed(2)}`;
-    totalItem.style.fontWeight = "bold";
-    pedidoContainer.appendChild(totalItem);
+            // Mostrar cada pedido en la lista de pedidos
+            pedidos.forEach((pedido) => {
+                const listItem = document.createElement("p");
+                listItem.innerText = `${pedido.cantidad} x ${pedido.producto} - Subtotal: $${pedido.subtotal.toFixed(2)}`;
+                pedidoContainer.appendChild(listItem);
+            });
 
-    // Añadir el contenedor del pedido a la lista de pedidos
-    listaPedidos.appendChild(pedidoContainer);
+            // Mostrar el total final
+            const totalItem = document.createElement("p");
+            totalItem.innerText = `Total: $${precioTotal.toFixed(2)}`;
+            totalItem.style.fontWeight = "bold";
+            pedidoContainer.appendChild(totalItem);
 
-    // Almacenar el pedido en localStorage
-    almacenarPedidosEnLocalStorage({ mesero, mesa, pedidos, total: precioTotal });
+            // Añadir el contenedor del pedido a la lista de pedidos
+            listaPedidos.appendChild(pedidoContainer);
 
-    // Reiniciar para el siguiente pedido
-    pedidos = [];
-    precioTotal = 0;
-    document.getElementById("precioTotal").innerText = "$0.00";
+            // Reiniciar para el siguiente pedido
+            pedidos = [];
+            precioTotal = 0;
+            document.getElementById("precioTotal").innerText = "$0.00";
 
-    // Limpiar el formulario para el próximo pedido
-    document.getElementById("pedido-form").reset();
-}
-
-// Función para almacenar pedidos en localStorage
-function almacenarPedidosEnLocalStorage(nuevoPedido) {
-    let pedidosAlmacenados = JSON.parse(localStorage.getItem('pedidos')) || [];
-    pedidosAlmacenados.push(nuevoPedido);
-    localStorage.setItem('pedidos', JSON.stringify(pedidosAlmacenados));
+            // Limpiar el formulario para el próximo pedido
+            document.getElementById("pedido-form").reset();
+        })
+        .catch((error) => {
+            console.error("Error al almacenar el pedido: ", error);
+        });
 }
 
 // Vincular el botón "Finalizar Pedido" al evento submit del formulario
