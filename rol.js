@@ -22,7 +22,7 @@ function PaginaMesero(){
 }
 
 function PaginaCocinero(){
-    var cocinero = document.getElementById("pagm");
+    var cocinero = document.getElementById("pagc");
     if(cocinero){
         document.location.href="pagcocinero.html";
     }
