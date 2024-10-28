@@ -8,7 +8,7 @@
     <script type="module">
         // Importar funciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
         // Configuración de Firebase
         const firebaseConfig = {
@@ -23,6 +23,27 @@
         // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+
+        // Precios de productos
+        const precios = {
+            "pollo": 8000,
+            "carne": 8000,
+            "queso": 4000,
+            "coca-cola": 2500,
+            "chicha": 2000,
+            "uva": 2500,
+            "colombiana": 2500,
+            "naranja": 2500,
+            "pepsi": 2500,
+            "manzana": 2500,
+            "chorizo": 8000,
+            "suizo": 8000,
+            "chicharron": 8000,
+            "hamburguesa": 8000,
+            "jamon": 5000,
+            "hawaiana": 7000,
+            "queso_mozarella": 5000
+        };
 
         // Función para agregar pedido
         function agregarPedido(tipo) {
@@ -43,13 +64,13 @@
                 pedidos.pedidos.push({
                     producto: arepa,
                     cantidad: cantidadArepa,
-                    subtotal: 8000 * cantidadArepa // Asumiendo un precio fijo
+                    subtotal: precios[arepa] * cantidadArepa
                 });
             } else if (tipo === 'gaseosa') {
                 pedidos.pedidos.push({
                     producto: gaseosa,
                     cantidad: cantidadGaseosa,
-                    subtotal: 2500 * cantidadGaseosa // Asumiendo un precio fijo
+                    subtotal: precios[gaseosa] * cantidadGaseosa
                 });
             }
 
@@ -63,9 +84,11 @@
         function calcularTotal() {
             const cantidadArepa = document.getElementById("cantidadArepa").value;
             const cantidadGaseosa = document.getElementById("cantidadGaseosa").value;
+            const arepaSeleccionada = document.getElementById("arepa").value;
+            const gaseosaSeleccionada = document.getElementById("gaseosa").value;
 
-            const totalArepa = 8000 * cantidadArepa;
-            const totalGaseosa = 2500 * cantidadGaseosa;
+            const totalArepa = precios[arepaSeleccionada] * cantidadArepa;
+            const totalGaseosa = precios[gaseosaSeleccionada] * cantidadGaseosa;
             const total = totalArepa + totalGaseosa;
 
             document.getElementById("precioTotal").innerText = `$${total.toFixed(2)}`;
@@ -85,9 +108,17 @@
             <input type="number" id="Mesa" required>
 
             <label for="arepa">Selecciona una Arepa:</label>
-            <select id="arepa">
+            <select id="arepa" onchange="calcularTotal()">
                 <option value="pollo">Arepa de Pollo - $8.000</option>
-                <!-- Otras opciones -->
+                <option value="carne">Arepa de Carne - $8.000</option>
+                <option value="queso">Arepa de Queso - $4.000</option>
+                <option value="chorizo">Arepa de Chorizo - $8.000</option>
+                <option value="suizo">Arepa Suiza - $8.000</option>
+                <option value="hawaiana">Arepa Hawaiana - $7.000</option>
+                <option value="chicharron">Arepa de Chicharrón - $8.000</option>
+                <option value="hamburguesa">Arepa Hamburguesa - $8.000</option>
+                <option value="jamon">Arepa de Jamón - $5.000</option>
+                <option value="queso_mozarella">Arepa de Queso Mozzarella - $5.000</option>
             </select>
 
             <label for="cantidadArepa">Cantidad de Arepas:</label>
@@ -96,9 +127,14 @@
             <button type="button" onclick="agregarPedido('arepa')">Añadir Arepa</button>
 
             <label for="gaseosa">Selecciona una Gaseosa:</label>
-            <select id="gaseosa">
+            <select id="gaseosa" onchange="calcularTotal()">
                 <option value="coca-cola">Coca-Cola - $2.500</option>
-                <!-- Otras opciones -->
+                <option value="pepsi">Pepsi - $2.500</option>
+                <option value="manzana">Manzana - $2.500</option>
+                <option value="chicha">Chicha - $2.000</option>
+                <option value="uva">Uva - $2.500</option>
+                <option value="colombiana">Colombiana - $2.500</option>
+                <option value="naranja">Naranja - $2.500</option>
             </select>
 
             <label for="cantidadGaseosa">Cantidad de Gaseosas:</label>
