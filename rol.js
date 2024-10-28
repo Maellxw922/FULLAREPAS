@@ -7,6 +7,7 @@ function UsuarioRegistrado(){
         alert("Bienvenido/a " + usuario);
         
     }else if(usuario=="Danna" && contra =="54321"){
+        document.location.href="rol.html";
         alert("Bienvenido " + usuario);
     }else{
         alert("Usuario y/o contraseña incorrectos")
