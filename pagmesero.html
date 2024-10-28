@@ -6,11 +6,9 @@
     <title>Lista de Pedidos - Mesero</title>
     <link rel="stylesheet" href="pagmesero.css">
     <script type="module">
-        // Importar funciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
             authDomain: "fullarepas-29b8d.firebaseapp.com",
@@ -20,11 +18,9 @@
             appId: "1:771877374150:web:1600cf14fe025344636fc7"
         };
 
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Precios de productos
         const precios = {
             "pollo": 8000,
             "carne": 8000,
@@ -45,10 +41,9 @@
             "queso_mozarella": 5000
         };
 
-        let precioTotal = 0;
         let pedidos = [];
+        let precioTotal = 0;
 
-        // Función para agregar pedido
         function agregarPedido(tipo) {
             const mesero = document.getElementById("Mesero").value;
             const mesa = document.getElementById("Mesa").value;
@@ -65,16 +60,20 @@
                 pedidos.push({ producto: gaseosa, cantidad: cantidadGaseosa, subtotal });
             }
 
-            calcularTotal(); // Actualizar total
+            calcularTotal();
+            // Almacenar el pedido en Firebase al final
+            const pedidosRef = ref(database, 'pedidos/' + mesero + mesa);
+            set(pedidosRef, { mesero, mesa, pedidos, total: precioTotal });
         }
 
-        // Función para calcular el total
         function calcularTotal() {
-            precioTotal = pedidos.reduce((total, pedido) => total + pedido.subtotal, 0);
+            precioTotal = 0;
+            pedidos.forEach(pedido => {
+                precioTotal += pedido.subtotal;
+            });
             document.getElementById("precioTotal").innerText = `$${precioTotal.toFixed(2)}`;
         }
 
-        // Función para finalizar el pedido y almacenar en Firebase
         function finalizarPedido(event) {
             event.preventDefault();
             const mesero = document.getElementById("Mesero").value;
@@ -90,17 +89,15 @@
             const newOrderRef = ref(database, 'pedidos/' + Date.now());
             set(newOrderRef, nuevoPedido).then(() => {
                 alert("Pedido enviado al cocinero.");
+                // Reiniciar variables
                 pedidos = [];
                 precioTotal = 0;
-                document.getElementById("precioTotal").innerText = "$0.00";
                 document.getElementById("pedido-form").reset();
-            }).catch((error) => {
+                document.getElementById("precioTotal").innerText = "$0.00";
+            }).catch(error => {
                 console.error("Error al almacenar el pedido: ", error);
             });
         }
-
-        // Vincular el botón "Finalizar Pedido" al evento submit del formulario
-        document.getElementById("pedido-form").addEventListener("submit", finalizarPedido);
     </script>
 </head>
 <body>
@@ -108,7 +105,7 @@
 
     <div id="order-form">
         <h2>Ingresar Pedido</h2>
-        <form id="pedido-form" onsubmit="event.preventDefault();">
+        <form id="pedido-form" onsubmit="finalizarPedido(event);">
             <label for="Mesero">Nombre del mesero</label>
             <input type="text" id="Mesero" required>
 
@@ -116,7 +113,7 @@
             <input type="number" id="Mesa" required>
 
             <label for="arepa">Selecciona una Arepa:</label>
-            <select id="arepa" onchange="agregarPedido('arepa')">
+            <select id="arepa" onchange="calcularTotal()">
                 <option value="pollo">Arepa de Pollo - $8.000</option>
                 <option value="carne">Arepa de Carne - $8.000</option>
                 <option value="queso">Arepa de Queso - $4.000</option>
@@ -130,10 +127,12 @@
             </select>
 
             <label for="cantidadArepa">Cantidad de Arepas:</label>
-            <input type="number" id="cantidadArepa" min="1" value="1">
+            <input type="number" id="cantidadArepa" min="1" value="1" onchange="calcularTotal()">
+
+            <button type="button" onclick="agregarPedido('arepa')">Añadir Arepa</button>
 
             <label for="gaseosa">Selecciona una Gaseosa:</label>
-            <select id="gaseosa" onchange="agregarPedido('gaseosa')">
+            <select id="gaseosa" onchange="calcularTotal()">
                 <option value="coca-cola">Coca-Cola - $2.500</option>
                 <option value="pepsi">Pepsi - $2.500</option>
                 <option value="manzana">Manzana - $2.500</option>
@@ -144,12 +143,19 @@
             </select>
 
             <label for="cantidadGaseosa">Cantidad de Gaseosas:</label>
-            <input type="number" id="cantidadGaseosa" min="1" value="1">
+            <input type="number" id="cantidadGaseosa" min="1" value="1" onchange="calcularTotal()">
+
+            <button type="button" onclick="agregarPedido('gaseosa')">Añadir Gaseosa</button>
 
             <h3>Precio Total: <span id="precioTotal">$0.00</span></h3>
 
             <button type="submit">Finalizar Pedido</button>
         </form>
+    </div>
+
+    <div id="order-list">
+        <h2>Lista de Pedidos</h2>
+        <ul id="lista-pedidos"></ul>
     </div>
 </body>
 </html>
