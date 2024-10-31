@@ -22,18 +22,32 @@
             margin: 10px 0;
             padding: 10px;
             background-color: #fff;
+            position: relative;
         }
         .pedido-container h4 {
             margin: 0;
         }
-        .btn-eliminar {
-            background-color: red;
+        .btn-eliminar, .btn-estado {
             color: white;
             border: none;
             padding: 5px 10px;
             cursor: pointer;
             border-radius: 5px;
             margin-top: 10px;
+            margin-right: 10px;
+        }
+        .btn-eliminar {
+            background-color: red;
+        }
+        .btn-estado.pendiente {
+            background-color: orange;
+        }
+        .btn-estado.preparando {
+            background-color: yellow;
+            color: black;
+        }
+        .btn-estado.listo {
+            background-color: green;
         }
     </style>
 </head>
@@ -75,6 +89,13 @@
                 totalItem.style.fontWeight = "bold";
                 pedidoContainer.appendChild(totalItem);
 
+                // Botón de estado con colores y texto
+                const btnEstado = document.createElement("button");
+                btnEstado.className = "btn-estado pendiente";
+                btnEstado.innerText = "Pendiente";
+                btnEstado.onclick = () => cambiarEstado(btnEstado);
+                pedidoContainer.appendChild(btnEstado);
+
                 // Botón de eliminar
                 const btnEliminar = document.createElement("button");
                 btnEliminar.innerText = "Eliminar Pedido";
@@ -91,6 +112,29 @@
                 const noPedidos = document.createElement("p");
                 noPedidos.innerText = "No hay pedidos recientes.";
                 listaPedidos.appendChild(noPedidos);
+            }
+        }
+
+        // Función para cambiar el estado del pedido
+        function cambiarEstado(btn) {
+            if (btn.classList.contains("pendiente")) {
+                btn.classList.remove("pendiente");
+                btn.classList.add("preparando");
+                btn.innerText = "Preparando";
+                btn.style.backgroundColor = "yellow";
+                btn.style.color = "black";
+            } else if (btn.classList.contains("preparando")) {
+                btn.classList.remove("preparando");
+                btn.classList.add("listo");
+                btn.innerText = "Listo";
+                btn.style.backgroundColor = "green";
+                btn.style.color = "white";
+            } else {
+                btn.classList.remove("listo");
+                btn.classList.add("pendiente");
+                btn.innerText = "Pendiente";
+                btn.style.backgroundColor = "orange";
+                btn.style.color = "white";
             }
         }
 
