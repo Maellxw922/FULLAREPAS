@@ -73,7 +73,7 @@
         const db = firebase.database();
 
         let total = 0;
-        const itemsPedido = [];
+        let itemsPedido = [];
 
         function agregarPedido(tipo) {
             const cantidad = document.getElementById(`cantidad${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).value;
