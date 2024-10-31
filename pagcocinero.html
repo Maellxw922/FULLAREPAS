@@ -67,9 +67,10 @@
                     });
                 }
 
-                // Mostrar el total final
+                // Mostrar el total final solo si está definido y es un número
                 const totalItem = document.createElement("p");
-                totalItem.innerText = `Total: $${pedido.total.toFixed(2)}`;
+                const total = typeof pedido.total === 'number' ? pedido.total.toFixed(2) : "0.00";
+                totalItem.innerText = `Total: $${total}`;
                 totalItem.style.fontWeight = "bold";
                 pedidoContainer.appendChild(totalItem);
 
