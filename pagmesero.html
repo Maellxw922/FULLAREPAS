@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="pagmesero.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
 </head>
 <body>
     <h1>FULL AREPAS</h1>
@@ -57,20 +57,26 @@
     </div>
 
     <script>
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
-            authDomain: "fullarepas-29b8d.firebaseapp.com",
-            projectId: "fullarepas-29b8d",
-            databaseURL: "https://fullarepas-29b8d-default-rtdb.firebaseio.com/",
-            storageBucket: "fullarepas-29b8d.appspot.com",
-            messagingSenderId: "771877374150",
-            appId: "1:771877374150:web:1600cf14fe025344636fc7"
-        };
 
-        // Inicializar Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<script>
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+    authDomain: "fullarepas-29b8d.firebaseapp.com",
+    databaseURL: "https://fullarepas-29b8d-default-rtdb.firebaseio.com",
+    projectId: "fullarepas-29b8d",
+    storageBucket: "fullarepas-29b8d.appspot.com",
+    messagingSenderId: "771877374150",
+    appId: "1:771877374150:web:1600cf14fe025344636fc7"
+  };
+
+  // Inicializar Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const database = firebase.database(app);
+
+  // Ahora puedes usar `database` para realizar operaciones en tu base de datos
+</script>
+
 
         let total = 0;
         let itemsPedido = [];
