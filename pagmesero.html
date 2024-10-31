@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Pedidos - Mesero</title>
     <link rel="stylesheet" href="pagmesero.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
 </head>
 <body>
     <h1>FULL AREPAS</h1>
@@ -12,26 +15,20 @@
     <div id="order-form">
         <h2>Ingresar Pedido</h2>
         <form id="pedido-form">
-            <label for="Mesero">Nombre del mesero</label>
+            <label for="Mesero">Nombre del mesero:</label>
             <input type="text" id="Mesero" required>
             
             <label for="Mesa">Número de la mesa:</label>
             <input type="number" id="Mesa" required>
             
+            <!-- Sección de Arepas -->
             <label for="arepa">Selecciona una Arepa:</label>
             <select id="arepa">
                 <option value="pollo">Arepa de Pollo - $8.000</option>
-                <option value="carne">Arepa de Carne - $8.000</option>
-                <option value="queso">Arepa de Queso - $4.000</option>
-                <option value="chicharron">Arepa de Chicharrón - $8.000</option>
-                <option value="jamon">Arepa de Jamón - $8.000</option>
-                <option value="queso_mozarella">Arepa de Queso Mozarella - $5.000</option>
-                <option value="chorizo">Arepa de Chorizo - $8.000</option>
-                <option value="hamburguesa">Arepa de Hamburguesa - $8.000</option>
-                <option value="suizo">Arepa de Suizo - $8.000</option>
-                <option value="mortadella">Arepa de Mortadella - $5.000</option>
-                <option value="hawaiana">Arepa Hawaiana - $7.000</option>
-                <option value="tocineta">Arepa de Tocineta - $8.000</option>
+                <option value="carne">Arepa de Carne - $9.000</option>
+                <option value="mixta">Arepa Mixta - $10.000</option>
+                <option value="queso">Arepa de Queso - $7.000</option>
+                <option value="huevo">Arepa de Huevo - $6.000</option>
             </select>
             
             <label for="cantidadArepa">Cantidad de Arepas:</label>
@@ -39,21 +36,19 @@
 
             <button type="button" onclick="agregarPedido('arepa')">Añadir Arepa</button>
 
-            <label for="gaseosa">Selecciona una Gaseosa:</label>
-            <select id="gaseosa">
-                <option value="coca-cola">Coca-Cola - $2.500</option>
-                <option value="chicha">Chicha de Arroz - $2.000</option>
-                <option value="manzana">Manzana - $2.500</option>
-                <option value="uva">Uva - $2.500</option>
-                <option value="naranja">Naranja - $2.500</option>
-                <option value="pepsi">Pepsi - $2.500</option>
-                <option value="colombiana">Colombiana - $2.500</option>
+            <!-- Sección de Bebidas -->
+            <label for="bebida">Selecciona una Bebida:</label>
+            <select id="bebida">
+                <option value="coca-cola">Coca-Cola - $3.000</option>
+                <option value="jugo">Jugo Natural - $4.000</option>
+                <option value="agua">Agua - $2.000</option>
+                <option value="cerveza">Cerveza - $5.000</option>
             </select>
+            
+            <label for="cantidadBebida">Cantidad de Bebidas:</label>
+            <input type="number" id="cantidadBebida" min="1" value="1">
 
-            <label for="cantidadGaseosa">Cantidad de Gaseosas:</label>
-            <input type="number" id="cantidadGaseosa" min="1" value="1">
-
-            <button type="button" onclick="agregarPedido('gaseosa')">Añadir Gaseosa</button>
+            <button type="button" onclick="agregarPedido('bebida')">Añadir Bebida</button>
 
             <h3>Precio Total: <span id="precioTotal">$0.00</span></h3>
 
@@ -61,11 +56,57 @@
         </form>
     </div>
 
-    <div id="order-list">
-        <h2>Lista de Pedidos</h2>
-        <ul id="lista-pedidos"></ul>
-    </div>
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+            authDomain: "fullarepas-29b8d.firebaseapp.com",
+            projectId: "fullarepas-29b8d",
+            storageBucket: "fullarepas-29b8d.appspot.com",
+            messagingSenderId: "771877374150",
+            appId: "1:771877374150:web:1600cf14fe025344636fc7"
+        };
 
-    <script src="script.js"></script>
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let total = 0;
+        const itemsPedido = [];
+
+        function agregarPedido(tipo) {
+            const cantidad = document.getElementById(`cantidad${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).value;
+            const productoSelect = document.getElementById(tipo);
+            const productoTexto = productoSelect.options[productoSelect.selectedIndex].text;
+            const precio = parseInt(productoTexto.split('- $')[1].replace('.', ''));
+            const subtotal = precio * cantidad;
+
+            itemsPedido.push({ producto: productoTexto.split(' - ')[0], cantidad: cantidad, subtotal: subtotal });
+            total += subtotal;
+            document.getElementById('precioTotal').innerText = `$${total.toLocaleString()}`;
+        }
+
+        document.getElementById('pedido-form').onsubmit = (e) => {
+            e.preventDefault();
+            const mesero = document.getElementById('Mesero').value;
+            const mesa = document.getElementById('Mesa').value;
+
+            const pedido = {
+                mesero: mesero,
+                mesa: mesa,
+                items: itemsPedido,
+                total: total
+            };
+
+            db.ref('pedidos').push(pedido);
+            alert("Pedido enviado.");
+
+            // Limpiar formulario
+            total = 0;
+            itemsPedido.length = 0;
+            document.getElementById('precioTotal').innerText = "$0.00";
+            e.target.reset();
+        };
+    </script>
 </body>
 </html>
