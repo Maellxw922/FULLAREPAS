@@ -50,105 +50,109 @@
             background-color: green;
         }
     </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database.js"></script>
 </head>
 <body>
     <h1>Lista de Pedidos</h1>
     <div id="lista-pedidos"></div>
 
     <script>
-        // Obtener los pedidos almacenados en localStorage
-        let pedidos = JSON.parse(localStorage.getItem('pedidos')) || [];
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+            authDomain: "fullarepas-29b8d.firebaseapp.com",
+            projectId: "fullarepas-29b8d",
+            storageBucket: "fullarepas-29b8d.appspot.com",
+            messagingSenderId: "771877374150",
+            appId: "1:771877374150:web:1600cf14fe025344636fc7"
+        };
 
-        // Mostrar los pedidos en la lista
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const listaPedidos = document.getElementById("lista-pedidos");
+
+        // Leer pedidos desde Firebase
         function mostrarPedidos() {
             listaPedidos.innerHTML = ''; // Limpiar la lista antes de mostrar
 
-            // Invertir la lista de pedidos para mostrar los más recientes primero
-            pedidos.slice().reverse().forEach((pedido, index) => {
-                const pedidoContainer = document.createElement("div");
-                pedidoContainer.className = "pedido-container";
+            db.ref('pedidos').on('value', (snapshot) => {
+                const pedidos = snapshot.val();
+                if (pedidos) {
+                    Object.keys(pedidos).reverse().forEach((id) => {
+                        const pedido = pedidos[id];
+                        const pedidoContainer = document.createElement("div");
+                        pedidoContainer.className = "pedido-container";
 
-                const encabezadoItem = document.createElement("h4");
-                encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
-                pedidoContainer.appendChild(encabezadoItem);
+                        const encabezadoItem = document.createElement("h4");
+                        encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
+                        pedidoContainer.appendChild(encabezadoItem);
 
-                // Validar si `pedido.pedidos` es un array antes de iterarlo
-                if (Array.isArray(pedido.pedidos)) {
-                    pedido.pedidos.forEach((item) => {
-                        const listItem = document.createElement("p");
-                        listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
-                        pedidoContainer.appendChild(listItem);
+                        if (Array.isArray(pedido.items)) {
+                            pedido.items.forEach((item) => {
+                                const listItem = document.createElement("p");
+                                listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
+                                pedidoContainer.appendChild(listItem);
+                            });
+                        }
+
+                        const totalItem = document.createElement("p");
+                        const total = typeof pedido.total === 'number' ? pedido.total.toFixed(2) : "0.00";
+                        totalItem.innerText = `Total: $${total}`;
+                        totalItem.style.fontWeight = "bold";
+                        pedidoContainer.appendChild(totalItem);
+
+                        const btnEstado = document.createElement("button");
+                        btnEstado.className = "btn-estado pendiente";
+                        btnEstado.innerText = pedido.estado || "Pendiente";
+                        btnEstado.onclick = () => cambiarEstado(id, btnEstado);
+                        pedidoContainer.appendChild(btnEstado);
+
+                        const btnEliminar = document.createElement("button");
+                        btnEliminar.innerText = "Eliminar Pedido";
+                        btnEliminar.className = "btn-eliminar";
+                        btnEliminar.onclick = () => eliminarPedido(id);
+                        pedidoContainer.appendChild(btnEliminar);
+
+                        listaPedidos.prepend(pedidoContainer);
                     });
+                } else {
+                    const noPedidos = document.createElement("p");
+                    noPedidos.innerText = "No hay pedidos recientes.";
+                    listaPedidos.appendChild(noPedidos);
                 }
-
-                // Mostrar el total final solo si está definido y es un número
-                const totalItem = document.createElement("p");
-                const total = typeof pedido.total === 'number' ? pedido.total.toFixed(2) : "0.00";
-                totalItem.innerText = `Total: $${total}`;
-                totalItem.style.fontWeight = "bold";
-                pedidoContainer.appendChild(totalItem);
-
-                // Botón de estado con colores y texto
-                const btnEstado = document.createElement("button");
-                btnEstado.className = "btn-estado pendiente";
-                btnEstado.innerText = "Pendiente";
-                btnEstado.onclick = () => cambiarEstado(btnEstado);
-                pedidoContainer.appendChild(btnEstado);
-
-                // Botón de eliminar
-                const btnEliminar = document.createElement("button");
-                btnEliminar.innerText = "Eliminar Pedido";
-                btnEliminar.className = "btn-eliminar";
-                btnEliminar.onclick = () => eliminarPedido(index);
-                pedidoContainer.appendChild(btnEliminar);
-
-                // Añadir el contenedor del pedido al inicio de la lista de pedidos
-                listaPedidos.prepend(pedidoContainer);
             });
-
-            // Mensaje si no hay pedidos
-            if (pedidos.length === 0) {
-                const noPedidos = document.createElement("p");
-                noPedidos.innerText = "No hay pedidos recientes.";
-                listaPedidos.appendChild(noPedidos);
-            }
         }
 
-        // Función para cambiar el estado del pedido
-        function cambiarEstado(btn) {
-            if (btn.classList.contains("pendiente")) {
-                btn.classList.remove("pendiente");
-                btn.classList.add("preparando");
-                btn.innerText = "Preparando";
+        function cambiarEstado(id, btn) {
+            let nuevoEstado;
+            if (btn.innerText === "Pendiente") {
+                nuevoEstado = "Preparando";
                 btn.style.backgroundColor = "yellow";
                 btn.style.color = "black";
-            } else if (btn.classList.contains("preparando")) {
-                btn.classList.remove("preparando");
-                btn.classList.add("listo");
-                btn.innerText = "Listo";
+            } else if (btn.innerText === "Preparando") {
+                nuevoEstado = "Listo";
                 btn.style.backgroundColor = "green";
                 btn.style.color = "white";
             } else {
-                btn.classList.remove("listo");
-                btn.classList.add("pendiente");
-                btn.innerText = "Pendiente";
+                nuevoEstado = "Pendiente";
                 btn.style.backgroundColor = "orange";
                 btn.style.color = "white";
             }
+            btn.innerText = nuevoEstado;
+
+            db.ref(`pedidos/${id}`).update({ estado: nuevoEstado });
         }
 
-        // Función para eliminar un pedido
-        function eliminarPedido(index) {
-            // Confirmar eliminación
+        function eliminarPedido(id) {
             if (confirm("¿Estás seguro de que deseas eliminar este pedido?")) {
-                pedidos.splice(index, 1); // Eliminar el pedido de la lista
-                localStorage.setItem('pedidos', JSON.stringify(pedidos)); // Actualizar localStorage
-                mostrarPedidos(); // Volver a mostrar la lista actualizada
+                db.ref(`pedidos/${id}`).remove();
             }
         }
 
-        // Mostrar los pedidos al cargar la página
         mostrarPedidos();
     </script>
 </body>
