@@ -50,7 +50,8 @@
         function mostrarPedidos() {
             listaPedidos.innerHTML = ''; // Limpiar la lista antes de mostrar
 
-            pedidos.forEach((pedido, index) => {
+            // Invertir la lista de pedidos para mostrar los más recientes primero
+            pedidos.slice().reverse().forEach((pedido, index) => {
                 const pedidoContainer = document.createElement("div");
                 pedidoContainer.className = "pedido-container";
 
@@ -81,8 +82,8 @@
                 btnEliminar.onclick = () => eliminarPedido(index);
                 pedidoContainer.appendChild(btnEliminar);
 
-                // Añadir el contenedor del pedido a la lista de pedidos
-                listaPedidos.appendChild(pedidoContainer);
+                // Añadir el contenedor del pedido al inicio de la lista de pedidos
+                listaPedidos.prepend(pedidoContainer);
             });
 
             // Mensaje si no hay pedidos
