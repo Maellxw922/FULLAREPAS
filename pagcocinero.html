@@ -58,12 +58,14 @@
                 encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
                 pedidoContainer.appendChild(encabezadoItem);
 
-                // Mostrar cada pedido en la lista de pedidos
-                pedido.pedidos.forEach((item) => {
-                    const listItem = document.createElement("p");
-                    listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
-                    pedidoContainer.appendChild(listItem);
-                });
+                // Validar si `pedido.pedidos` es un array antes de iterarlo
+                if (Array.isArray(pedido.pedidos)) {
+                    pedido.pedidos.forEach((item) => {
+                        const listItem = document.createElement("p");
+                        listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
+                        pedidoContainer.appendChild(listItem);
+                    });
+                }
 
                 // Mostrar el total final
                 const totalItem = document.createElement("p");
