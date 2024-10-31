@@ -17,6 +17,7 @@ const precios = {
     "hawaiana": 7000,
     "queso_mozarella": 5000,
 };
+
 let precioTotal = 0;
 let pedidos = []; // Lista para almacenar cada pedido
 
@@ -33,8 +34,10 @@ function agregarPedido(tipo) {
     precioUnitario = precios[producto];
     let subtotal = precioUnitario * cantidad;
     precioTotal += subtotal;
+
     // Añadir el pedido a la lista de pedidos
     pedidos.push({ producto, cantidad, subtotal });
+
     // Actualizar el precio total en la interfaz
     document.getElementById("precioTotal").innerText = `$${precioTotal.toFixed(2)}`;
 }
@@ -50,6 +53,7 @@ function finalizarPedido(event) {
         pedidos,
         total: precioTotal
     };
+
     // Almacenar el pedido en Firebase
     almacenarPedidosEnFirebase(nuevoPedido);
 
@@ -61,10 +65,4 @@ function finalizarPedido(event) {
 }
 
 // Función para almacenar pedidos en Firebase
-function almacenarPedidosEnFirebase(nuevoPedido) {
-    const pedidosRef = firebase.database().ref("pedidos/");
-    pedidosRef.push(nuevoPedido);
-}
-
-// Vincular el botón "Finalizar Pedido" al evento submit del formulario
-document.getElementById("pedido-form").addEventListener("submit", finalizarPedido);
+function almacenarPedidos
