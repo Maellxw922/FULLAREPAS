@@ -5,19 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Pedidos - Mesero</title>
     <link rel="stylesheet" href="pagmesero.css">
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+            authDomain: "fullarepas-29b8d.firebaseapp.com",
+            projectId: "fullarepas-29b8d",
+            storageBucket: "fullarepas-29b8d.appspot.com",
+            messagingSenderId: "771877374150",
+            appId: "1:771877374150:web:1600cf14fe025344636fc7"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Function to store order in Firebase
+        function almacenarPedidosEnFirebase(nuevoPedido) {
+            const pedidosRef = ref(database, "pedidos/");
+            push(pedidosRef, nuevoPedido);
+        }
+    </script>
 </head>
 <body>
     <h1>FULL AREPAS</h1>
-
     <div id="order-form">
         <h2>Ingresar Pedido</h2>
         <form id="pedido-form">
             <label for="Mesero">Nombre del mesero</label>
             <input type="text" id="Mesero" required>
-            
             <label for="Mesa">Número de la mesa:</label>
             <input type="number" id="Mesa" required>
-            
             <label for="arepa">Selecciona una Arepa:</label>
             <select id="arepa">
                 <option value="pollo">Arepa de Pollo - $8.000</option>
@@ -33,12 +55,9 @@
                 <option value="hawaiana">Arepa Hawaiana - $7.000</option>
                 <option value="tocineta">Arepa de Tocineta - $8.000</option>
             </select>
-            
             <label for="cantidadArepa">Cantidad de Arepas:</label>
             <input type="number" id="cantidadArepa" min="1" value="1">
-
             <button type="button" onclick="agregarPedido('arepa')">Añadir Arepa</button>
-
             <label for="gaseosa">Selecciona una Gaseosa:</label>
             <select id="gaseosa">
                 <option value="coca-cola">Coca-Cola - $2.500</option>
@@ -49,23 +68,17 @@
                 <option value="pepsi">Pepsi - $2.500</option>
                 <option value="colombiana">Colombiana - $2.500</option>
             </select>
-
             <label for="cantidadGaseosa">Cantidad de Gaseosas:</label>
             <input type="number" id="cantidadGaseosa" min="1" value="1">
-
             <button type="button" onclick="agregarPedido('gaseosa')">Añadir Gaseosa</button>
-
             <h3>Precio Total: <span id="precioTotal">$0.00</span></h3>
-
             <button type="submit">Finalizar Pedido</button>
         </form>
     </div>
-
     <div id="order-list">
         <h2>Lista de Pedidos</h2>
         <ul id="lista-pedidos"></ul>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
