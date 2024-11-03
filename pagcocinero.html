@@ -39,7 +39,12 @@
               btnEstado.innerText = pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1);
               btnEstado.onclick = () => cambiarEstado(btnEstado, childSnapshot.key);
               pedidoItem.appendChild(btnEstado);
-
+              const btnEliminar = document.createElement("button"); 
+              btnEliminar.innerText = "Eliminar Pedido";
+              btnEliminar.className = "btn-eliminar";
+              btnEliminar.onclick = () => eliminarPedido(pedidoContainer, pedido.id); 
+              pedidoContainer.appendChild(btnEliminar);
+                
               listaPedidos.appendChild(pedidoItem);
             });
           } else {
