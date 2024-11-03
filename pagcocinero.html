@@ -54,6 +54,14 @@
           console.error('Error al cargar pedidos:', error);
         }
       }
+      async function eliminarPedido(pedidoContainer, pedidoId) {     
+        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
+        try { await remove(pedidoRef); 
+        pedidoContainer.remove(); 
+        } catch (error) { 
+            console.error('Error al eliminar pedido:', error);
+        } 
+      }
 
       async function cambiarEstado(btn, pedidoId) {
         let nuevoEstado;
@@ -68,14 +76,6 @@
           btn.innerText = "Listo";
           nuevoEstado = "listo";
         }
-        async function eliminarPedido(pedidoContainer, pedidoId) {     
-        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
-        try { await remove(pedidoRef); 
-        pedidoContainer.remove(); 
-        } catch (error) { 
-            console.error('Error al eliminar pedido:', error);
-        } 
-      }
 
         const pedidoRef = ref(db, 'pedidos/' + pedidoId);
         try {
