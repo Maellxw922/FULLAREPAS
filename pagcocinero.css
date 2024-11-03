@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 20px;
+}
+h1 {
+    text-align: center;
+}
+#lista-pedidos {
+    margin-top: 20px;
+}
+.pedido-container {
+    border: 1px solid #ccc;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #fff;
+    position: relative;
+}
+.pedido-container h4 {
+    margin: 0;
+}
+.btn-eliminar, .btn-estado {
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-right: 10px;
+}
+.btn-eliminar {
+    background-color: red;
+}
+.btn-estado.pendiente {
+    background-color: orange;
+}
+.btn-estado.preparando {
+    background-color: yellow;
+    color: black;
+}
+.btn-estado.listo {
+    background-color: green;
+}
