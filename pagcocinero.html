@@ -68,6 +68,14 @@
           btn.innerText = "Listo";
           nuevoEstado = "listo";
         }
+        async function eliminarPedido(pedidoContainer, pedidoId) {     
+        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
+        try { await remove(pedidoRef); 
+        pedidoContainer.remove(); 
+        } catch (error) { 
+            console.error('Error al eliminar pedido:', error);
+        } 
+      }
 
         const pedidoRef = ref(db, 'pedidos/' + pedidoId);
         try {
