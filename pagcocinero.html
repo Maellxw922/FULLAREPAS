@@ -6,73 +6,108 @@
     <title>Pedidos - Cocinero</title>
     <link rel="stylesheet" href="pagcocinero.css">
     <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-      import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getDatabase, ref, get, child, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
-        authDomain: "fullarepas-29b8d.firebaseapp.com",
-        databaseURL: "https://fullarepas-29b8d-default-rtdb.firebaseio.com",
-        projectId: "fullarepas-29b8d",
-        storageBucket: "fullarepas-29b8d.firebasestorage.app",
-        messagingSenderId: "771877374150",
-        appId: "1:771877374150:web:1600cf14fe025344636fc7"
-      };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+            authDomain: "fullarepas-29b8d.firebaseapp.com",
+            databaseURL: "Yhttps://fullarepas-29b8d-default-rtdb.firebaseio.com",
+            projectId: "fullarepas-29b8d",
+            storageBucket: "fullarepas-29b8d.firebasestorage.app",
+            messagingSenderId: "771877374150",
+            appId: "1:771877374150:web:1600cf14fe025344636fc7"
+        };
 
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-      async function cargarPedidos() {
-        const dbRef = ref(db);
-        try {
-          const snapshot = await get(child(dbRef, 'pedidos'));
-          if (snapshot.exists()) {
-            const listaPedidos = document.getElementById('lista-pedidos');
-            listaPedidos.innerHTML = '';
-            snapshot.forEach((childSnapshot) => {
-              const pedido = childSnapshot.val();
-              const pedidoItem = document.createElement('li');
-              pedidoItem.innerHTML = `<strong>Mesero:</strong> ${pedido.mesero} | <strong>Mesa:</strong> ${pedido.mesa}<br>${pedido.cantidad} x ${pedido.producto}<br><strong>Estado:</strong> ${pedido.estado}`;
-
-              const btnEstado = document.createElement("button");
-              btnEstado.className = `btn-estado ${pedido.estado}`;
-              btnEstado.innerText = pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1);
-              btnEstado.onclick = () => cambiarEstado(btnEstado, childSnapshot.key);
-              pedidoItem.appendChild(btnEstado);
-                
-              listaPedidos.appendChild(pedidoItem);
-            });
-          } else {
-            console.log("No hay pedidos disponibles");
-          }
-        } catch (error) {
-          console.error('Error al cargar pedidos:', error);
-        }
-      }
-
-      async function cambiarEstado(btn, pedidoId) {
-        let nuevoEstado;
-        if (btn.classList.contains("pendiente")) {
-          btn.classList.remove("pendiente");
-          btn.classList.add("preparando");
-          btn.innerText = "Preparando";
-          nuevoEstado = "preparando";
-        } else if (btn.classList.contains("preparando")) {
-          btn.classList.remove("preparando");
-          btn.classList.add("listo");
-          btn.innerText = "Listo";
-          nuevoEstado = "listo";
+        async function cargarPedidos() {
+            const dbRef = ref(db);
+            try {
+                const snapshot = await get(child(dbRef, 'pedidos'));
+                if (snapshot.exists()) {
+                    const listaPedidos = document.getElementById('lista-pedidos');
+                    listaPedidos.innerHTML = '';
+                    snapshot.forEach((childSnapshot) => {
+                        const pedido = childSnapshot.val();
+                        agregarAPantalla(pedido, childSnapshot.key);
+                    });
+                } else {
+                    console.log("No hay pedidos disponibles");
+                }
+            } catch (error) {
+                console.error('Error al cargar pedidos:', error);
+            }
         }
 
-        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
-        try {
-          await update(pedidoRef, { estado: nuevoEstado });
-        } catch (error) {
-          console.error('Error al actualizar estado:', error);
-        }
-      }
+        function agregarAPantalla(pedido, pedidoId) {
+            const listaPedidos = document.getElementById("lista-pedidos");
 
-      document.addEventListener("DOMContentLoaded", cargarPedidos);
+            const pedidoContainer = document.createElement("div");
+            pedidoContainer.className = "pedido-container";
+
+            const encabezadoItem = document.createElement("h4");
+            encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
+            pedidoContainer.appendChild(encabezadoItem);
+
+            const listItem = document.createElement("p");
+            listItem.innerText = `${pedido.cantidad} x ${pedido.producto}`;
+            pedidoContainer.appendChild(listItem);
+
+            const totalItem = document.createElement("p");
+            totalItem.innerText = `Total: $${pedido.cantidad * 8000}`; // Ajusta el cálculo según el precio real del producto
+            totalItem.style.fontWeight = "bold";
+            pedidoContainer.appendChild(totalItem);
+
+            const btnEstado = document.createElement("button");
+            btnEstado.className = "btn-estado pendiente";
+            btnEstado.innerText = "Pendiente";
+            btnEstado.onclick = () => cambiarEstado(btnEstado, pedidoId);
+            pedidoContainer.appendChild(btnEstado);
+
+            const btnEliminar = document.createElement("button");
+            btnEliminar.innerText = "Eliminar Pedido";
+            btnEliminar.className = "btn-eliminar";
+            btnEliminar.onclick = () => eliminarPedido(pedidoContainer, pedidoId);
+            pedidoContainer.appendChild(btnEliminar);
+
+            listaPedidos.appendChild(pedidoContainer);
+        }
+
+        async function cambiarEstado(btn, pedidoId) {
+            let nuevoEstado;
+            if (btn.classList.contains("pendiente")) {
+                btn.classList.remove("pendiente");
+                btn.classList.add("preparando");
+                btn.innerText = "Preparando";
+                nuevoEstado = "preparando";
+            } else if (btn.classList.contains("preparando")) {
+                btn.classList.remove("preparando");
+                btn.classList.add("listo");
+                btn.innerText = "Listo";
+                nuevoEstado = "listo";
+            }
+
+            const pedidoRef = ref(db, 'pedidos/' + pedidoId);
+            try {
+                await update(pedidoRef, { estado: nuevoEstado });
+            } catch (error) {
+                console.error('Error al actualizar estado:', error);
+            }
+        }
+
+        async function eliminarPedido(pedidoContainer, pedidoId) {
+            const pedidoRef = ref(db, 'pedidos/' + pedidoId);
+            try {
+                await remove(pedidoRef);
+                pedidoContainer.remove();
+            } catch (error) {
+                console.error('Error al eliminar pedido:', error);
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", cargarPedidos);
     </script>
 </head>
 <body>
@@ -80,7 +115,7 @@
 
     <div id="order-list">
         <h2>Lista de Pedidos</h2>
-        <ul id="lista-pedidos"></ul>
+        <div id="lista-pedidos"></div>
     </div>
 </body>
 </html>
