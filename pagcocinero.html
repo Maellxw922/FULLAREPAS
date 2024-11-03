@@ -1,161 +1,86 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Pedidos - Cocinero</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
+    <title>Pedidos - Cocinero</title>
+    <link rel="stylesheet" href="pagcocinero.css">
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+      import { getDatabase, ref, get, child, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+        authDomain: "fullarepas-29b8d.firebaseapp.com",
+        databaseURL: "https://fullarepas-29b8d-default-rtdb.firebaseio.com",
+        projectId: "fullarepas-29b8d",
+        storageBucket: "fullarepas-29b8d.firebasestorage.app",
+        messagingSenderId: "771877374150",
+        appId: "1:771877374150:web:1600cf14fe025344636fc7"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      async function cargarPedidos() {
+        const dbRef = ref(db);
+        try {
+          const snapshot = await get(child(dbRef, 'pedidos'));
+          if (snapshot.exists()) {
+            const listaPedidos = document.getElementById('lista-pedidos');
+            listaPedidos.innerHTML = '';
+            snapshot.forEach((childSnapshot) => {
+              const pedido = childSnapshot.val();
+              const pedidoItem = document.createElement('li');
+              pedidoItem.innerHTML = `<strong>Mesero:</strong> ${pedido.mesero} | <strong>Mesa:</strong> ${pedido.mesa}<br>${pedido.cantidad} x ${pedido.producto}<br><strong>Estado:</strong> ${pedido.estado}`;
+
+              const btnEstado = document.createElement("button");
+              btnEstado.className = `btn-estado ${pedido.estado}`;
+              btnEstado.innerText = pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1);
+              btnEstado.onclick = () => cambiarEstado(btnEstado, childSnapshot.key);
+              pedidoItem.appendChild(btnEstado);
+
+              listaPedidos.appendChild(pedidoItem);
+            });
+          } else {
+            console.log("No hay pedidos disponibles");
+          }
+        } catch (error) {
+          console.error('Error al cargar pedidos:', error);
         }
-        h1 {
-            text-align: center;
+      }
+
+      async function cambiarEstado(btn, pedidoId) {
+        let nuevoEstado;
+        if (btn.classList.contains("pendiente")) {
+          btn.classList.remove("pendiente");
+          btn.classList.add("preparando");
+          btn.innerText = "Preparando";
+          nuevoEstado = "preparando";
+        } else if (btn.classList.contains("preparando")) {
+          btn.classList.remove("preparando");
+          btn.classList.add("listo");
+          btn.innerText = "Listo";
+          nuevoEstado = "listo";
         }
-        #lista-pedidos {
-            margin-top: 20px;
+
+        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
+        try {
+          await update(pedidoRef, { estado: nuevoEstado });
+        } catch (error) {
+          console.error('Error al actualizar estado:', error);
         }
-        .pedido-container {
-            border: 1px solid #ccc;
-            margin: 10px 0;
-            padding: 10px;
-            background-color: #fff;
-            position: relative;
-        }
-        .pedido-container h4 {
-            margin: 0;
-        }
-        .btn-eliminar, .btn-estado {
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 10px;
-            margin-right: 10px;
-        }
-        .btn-eliminar {
-            background-color: red;
-        }
-        .btn-estado.pendiente {
-            background-color: orange;
-        }
-        .btn-estado.preparando {
-            background-color: yellow;
-            color: black;
-        }
-        .btn-estado.listo {
-            background-color: green;
-        }
-    </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
+      }
+
+      document.addEventListener("DOMContentLoaded", cargarPedidos);
+    </script>
 </head>
 <body>
-    <h1>Lista de Pedidos</h1>
-    <div id="lista-pedidos"></div>
+    <h1>FULL AREPAS</h1>
 
-    <script>
-       // Configuración de Firebase
-  const firebaseConfig = {
-    apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
-    authDomain: "fullarepas-29b8d.firebaseapp.com",
-    databaseURL: "https://fullarepas-29b8d-default-rtdb.firebaseio.com",
-    projectId: "fullarepas-29b8d",
-    storageBucket: "fullarepas-29b8d.appspot.com",
-    messagingSenderId: "771877374150",
-    appId: "1:771877374150:web:1600cf14fe025344636fc7"
-  };
-
-  // Inicializar Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const database = firebase.database(app);
-
-
-        const listaPedidos = document.getElementById("lista-pedidos");
-
-        // Leer pedidos desde Firebase
-        function mostrarPedidos() {
-            listaPedidos.innerHTML = ''; // Limpiar la lista antes de mostrar
-
-            db.ref('pedidos').on('value', (snapshot) => {
-                const pedidos = snapshot.val();
-                if (pedidos) {
-                    Object.keys(pedidos).reverse().forEach((id) => {
-                        const pedido = pedidos[id];
-                        const pedidoContainer = document.createElement("div");
-                        pedidoContainer.className = "pedido-container";
-
-                        const encabezadoItem = document.createElement("h4");
-                        encabezadoItem.innerText = `Mesero: ${pedido.mesero} | Mesa: ${pedido.mesa}`;
-                        pedidoContainer.appendChild(encabezadoItem);
-
-                        if (Array.isArray(pedido.items)) {
-                            pedido.items.forEach((item) => {
-                                const listItem = document.createElement("p");
-                                listItem.innerText = `${item.cantidad} x ${item.producto} - Subtotal: $${item.subtotal.toFixed(2)}`;
-                                pedidoContainer.appendChild(listItem);
-                            });
-                        }
-
-                        const totalItem = document.createElement("p");
-                        const total = typeof pedido.total === 'number' ? pedido.total.toFixed(2) : "0.00";
-                        totalItem.innerText = `Total: $${total}`;
-                        totalItem.style.fontWeight = "bold";
-                        pedidoContainer.appendChild(totalItem);
-
-                        const btnEstado = document.createElement("button");
-                        btnEstado.className = "btn-estado pendiente";
-                        btnEstado.innerText = pedido.estado || "Pendiente";
-                        btnEstado.onclick = () => cambiarEstado(id, btnEstado);
-                        pedidoContainer.appendChild(btnEstado);
-
-                        const btnEliminar = document.createElement("button");
-                        btnEliminar.innerText = "Eliminar Pedido";
-                        btnEliminar.className = "btn-eliminar";
-                        btnEliminar.onclick = () => eliminarPedido(id);
-                        pedidoContainer.appendChild(btnEliminar);
-
-                        listaPedidos.prepend(pedidoContainer);
-                    });
-                } else {
-                    const noPedidos = document.createElement("p");
-                    noPedidos.innerText = "No hay pedidos recientes.";
-                    listaPedidos.appendChild(noPedidos);
-                }
-            });
-        }
-
-        function cambiarEstado(id, btn) {
-            let nuevoEstado;
-            if (btn.innerText === "Pendiente") {
-                nuevoEstado = "Preparando";
-                btn.style.backgroundColor = "yellow";
-                btn.style.color = "black";
-            } else if (btn.innerText === "Preparando") {
-                nuevoEstado = "Listo";
-                btn.style.backgroundColor = "green";
-                btn.style.color = "white";
-            } else {
-                nuevoEstado = "Pendiente";
-                btn.style.backgroundColor = "orange";
-                btn.style.color = "white";
-            }
-            btn.innerText = nuevoEstado;
-
-            db.ref(`pedidos/${id}`).update({ estado: nuevoEstado });
-        }
-
-        function eliminarPedido(id) {
-            if (confirm("¿Estás seguro de que deseas eliminar este pedido?")) {
-                db.ref(`pedidos/${id}`).remove();
-            }
-        }
-
-        mostrarPedidos();
-    </script>
+    <div id="order-list">
+        <h2>Lista de Pedidos</h2>
+        <ul id="lista-pedidos"></ul>
+    </div>
 </body>
 </html>
