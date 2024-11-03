@@ -39,11 +39,6 @@
               btnEstado.innerText = pedido.estado.charAt(0).toUpperCase() + pedido.estado.slice(1);
               btnEstado.onclick = () => cambiarEstado(btnEstado, childSnapshot.key);
               pedidoItem.appendChild(btnEstado);
-              const btnEliminar = document.createElement("button"); 
-              btnEliminar.innerText = "Eliminar Pedido";
-              btnEliminar.className = "btn-eliminar";
-              btnEliminar.onclick = () => eliminarPedido(pedidoContainer, pedido.id); 
-              pedidoContainer.appendChild(btnEliminar);
                 
               listaPedidos.appendChild(pedidoItem);
             });
@@ -53,14 +48,6 @@
         } catch (error) {
           console.error('Error al cargar pedidos:', error);
         }
-      }
-      async function eliminarPedido(pedidoContainer, pedidoId) {     
-        const pedidoRef = ref(db, 'pedidos/' + pedidoId);
-        try { await remove(pedidoRef); 
-        pedidoContainer.remove(); 
-        } catch (error) { 
-            console.error('Error al eliminar pedido:', error);
-        } 
       }
 
       async function cambiarEstado(btn, pedidoId) {
