@@ -1,3 +1,20 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 const precios = {
     "pollo": 8000,
     "carne": 8000,
@@ -44,60 +61,35 @@ function agregarPedido(tipo) {
     document.getElementById("precioTotal").innerText = `$${precioTotal.toFixed(2)}`;
 }
 
-// Función para finalizar el pedido y mostrar la lista completa
-function finalizarPedido(event) {
+// Función para finalizar el pedido y enviar a Firebase
+async function finalizarPedido(event) {
     event.preventDefault();
-
-    const listaPedidos = document.getElementById("lista-pedidos");
 
     // Capturar el nombre del mesero y número de la mesa
     const mesero = document.getElementById("Mesero").value;
     const mesa = document.getElementById("Mesa").value;
 
-    // Crear un contenedor para el nuevo pedido
-    const pedidoContainer = document.createElement("div");
-    pedidoContainer.style.border = "1px solid #ccc";
-    pedidoContainer.style.margin = "10px 0";
-    pedidoContainer.style.padding = "10px";
+    const nuevoPedidoRef = ref(db, 'pedidos/' + Date.now());
+    try {
+        await set(nuevoPedidoRef, {
+            mesero: mesero,
+            mesa: mesa,
+            pedidos: pedidos,
+            total: precioTotal,
+            estado: "pendiente"
+        });
+        console.log("Pedido añadido a Firebase con éxito");
 
-    // Añadir encabezado con mesero y mesa
-    const encabezadoItem = document.createElement("h4");
-    encabezadoItem.innerText = `Mesero: ${mesero} | Mesa: ${mesa}`;
-    pedidoContainer.appendChild(encabezadoItem);
+        // Reiniciar para el siguiente pedido
+        pedidos = [];
+        precioTotal = 0;
+        document.getElementById("precioTotal").innerText = "$0.00";
 
-    // Mostrar cada pedido en la lista de pedidos
-    pedidos.forEach((pedido) => {
-        const listItem = document.createElement("p");
-        listItem.innerText = `${pedido.cantidad} x ${pedido.producto} - Subtotal: $${pedido.subtotal.toFixed(2)}`;
-        pedidoContainer.appendChild(listItem);
-    });
-
-    // Mostrar el total final
-    const totalItem = document.createElement("p");
-    totalItem.innerText = `Total: $${precioTotal.toFixed(2)}`;
-    totalItem.style.fontWeight = "bold";
-    pedidoContainer.appendChild(totalItem);
-
-    // Añadir el contenedor del pedido a la lista de pedidos
-    listaPedidos.appendChild(pedidoContainer);
-
-    // Almacenar el pedido en localStorage
-    almacenarPedidosEnLocalStorage({ mesero, mesa, pedidos, total: precioTotal });
-
-    // Reiniciar para el siguiente pedido
-    pedidos = [];
-    precioTotal = 0;
-    document.getElementById("precioTotal").innerText = "$0.00";
-
-    // Limpiar el formulario para el próximo pedido
-    document.getElementById("pedido-form").reset();
-}
-
-// Función para almacenar pedidos en localStorage
-function almacenarPedidosEnLocalStorage(nuevoPedido) {
-    let pedidosAlmacenados = JSON.parse(localStorage.getItem('pedidos')) || [];
-    pedidosAlmacenados.push(nuevoPedido);
-    localStorage.setItem('pedidos', JSON.stringify(pedidosAlmacenados));
+        // Limpiar el formulario para el próximo pedido
+        document.getElementById("pedido-form").reset();
+    } catch (e) {
+        console.error("Error añadiendo el pedido a Firebase: ", e);
+    }
 }
 
 // Vincular el botón "Finalizar Pedido" al evento submit del formulario
