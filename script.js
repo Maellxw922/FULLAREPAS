@@ -3,13 +3,13 @@ import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.0.1
 
 // Configuración de Firebase
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    databaseURL: "YOUR_DATABASE_URL",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+apiKey: "AIzaSyAQxAd3AkHB5SXUSJq1LsVKuMNNUZzyRZY",
+authDomain: "fullarepas-29b8d.firebaseapp.com",
+databaseURL: "Yhttps://fullarepas-29b8d-default-rtdb.firebaseio.com",
+projectId: "fullarepas-29b8d",
+storageBucket: "fullarepas-29b8d.firebasestorage.app",
+messagingSenderId: "771877374150",
+appId: "1:771877374150:web:1600cf14fe025344636fc7"
 };
 
 const app = initializeApp(firebaseConfig);
